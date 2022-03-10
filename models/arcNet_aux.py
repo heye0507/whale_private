@@ -6,13 +6,9 @@ import math
 from fastai.vision.learner import _update_first_layer, num_features_model, has_pool_type
 from fastai.layers import AdaptiveAvgPool, Flatten
 from fastai.torch_core import apply_init
-from fastai.callback.hook import hook_outputs
 
 class ArcMarginProduct(nn.Module):
-    r"""
-        Source: https://www.kaggle.com/alibaba19/fastai-arcface-pipeline-training
-        Modified: HH
-        Implement of large margin arc distance: :
+    r"""Implement of large margin arc distance: :
         Args:
             in_features: size of each input sample
             out_features: size of each output sample
@@ -55,10 +51,8 @@ class ArcMarginProduct(nn.Module):
         output *= self.s
 
         return output
-
-
-
-
+    
+    
 class Eff_Arc_Aux_Net(nn.Module):
     def __init__(self, config):
         super().__init__()
@@ -75,7 +69,6 @@ class Eff_Arc_Aux_Net(nn.Module):
         self.backbone_4 = backbone[3][6:]
         self.backbone_5 = backbone[4:]
         
-#         self.sfs = hook_outputs([self.backbone[3][idx][-1].bn3 for idx in [4,5,6]]) #b7 last 3 layers in conv part
         in_features = 3808 #num_features_model(nn.Sequential(*self.backbone.children()))
         self.avg_pool = AdaptiveAvgPool()
         self.head = nn.Sequential(Flatten(),
@@ -102,10 +95,8 @@ class Eff_Arc_Aux_Net(nn.Module):
         f3 = self.avg_pool(f3).to(images.device)
         features = self.backbone_5(features)
         features = self.avg_pool(features).to(images.device)
-#         print(f1.shape,f2.shape,f3.shape, features.shape)
         assert f1.shape[0] == f2.shape[0] == f3.shape[0] == features.shape[0], f'{f1.shape[0]}, {f2.shape[0]}, {f3.shape[0]}, {features.shape[0]}'
         features = torch.cat([f1, f2, f3, features], dim=1)
-#         print(features.shape)
         features = self.head(features)
         if labels is not None:
             return self.head_arc(features, labels), features

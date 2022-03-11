@@ -27,8 +27,8 @@ class WhaleDataset(Dataset):
             label = self.df.iloc[idx]['final_category']
             Id = self.df.iloc[idx]['individual_id']
         image = cv2.imread(f'{self.path}/{fname}', cv2.IMREAD_COLOR)
-        if self.crop_method == 'whole':
-            left, top, right, bottom = map(int, self.df.iloc[idx]['box'].split(' '))
+        if self.crop_method == 'body':
+            left, top, right, bottom = map(int, self.df.iloc[idx]['body_bbox'].split())
         elif self.crop_method == 'fin':
             left, top, right, bottom = map(int, self.df.iloc[idx]['bbox'].split())
         if self.crop_method != None and left != -1:

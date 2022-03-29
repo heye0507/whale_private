@@ -43,7 +43,7 @@ class WhaleDataset(Dataset):
             return {'image': image,
                    }, fname
         else:
-            return {'image': image,'id': Id}, label
+            return {'image': image,'fname': fname}, label
         
 class WhaleTripletSampler(Sampler):
     '''

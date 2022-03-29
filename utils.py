@@ -14,6 +14,13 @@ class ArcfaceCallback(Callback):
     def after_pred(self):
         self.learn.pred = self.pred[0]
 
+class ArcfaceFocalOHEM(Callback):
+    def before_batch(self):
+        self.learn.xb = (self.x['image'], self.y)
+        
+    def after_pred(self):
+        if not self.training:
+            self.learn.pred = self.pred[0]
 
 # Metric
 def map5kfast(preds, targs, k=10):
@@ -82,20 +89,26 @@ def inference(m, dataloader, test=False, **kwargs):
     m.to(device)
     
     ret_features, ret_labels = [], []
+    filename = []
     
     with torch.no_grad():
         for xb, yb in tqdm(dataloader):
             images = xb['image'].to(device)
+            if not test:
+                fnames = xb['fname']
+            else: fnames = '0'
             id_list = yb
 #             if not test:
 #                 id_list = xb['fn']
 #             else: id_list = yb
             feats = m(images)
+            feats = torch.nn.functional.normalize(feats)
             ret_features.extend(feats.cpu().numpy())
             ret_labels.extend(id_list)
+            filename.extend(fnames)
 #             for key, feat in zip(id_list, feats.cpu().numpy()):
 #                 ret_dict[key].append(feat)
-    return ret_features, ret_labels
+    return ret_features, ret_labels, filename
 
 import nmslib
 

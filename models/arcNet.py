@@ -56,7 +56,16 @@ class ArcMarginProduct(nn.Module):
         return output
 
 
+class BinaryHead(nn.Module):
+    def __init__(self, num_class, emb_size, s = 8.0):
+        super(BinaryHead,self).__init__()
+        self.s = s
+        self.fc = nn.Sequential(nn.Linear(emb_size, num_class))
 
+    def forward(self, fea):
+        fea = F.normalize(fea)
+        logit = self.fc(fea)*self.s
+        return logit
 
 class Eff_Arc_Net(nn.Module):
     def __init__(self, config):
@@ -79,13 +88,13 @@ class Eff_Arc_Net(nn.Module):
                                          easy_margin = config['easy_margin'],
                                          ls_eps = config['ls_eps']
                                         )
+        self.binary_head = BinaryHead(num_outputs, channel_size)
 
     def forward(self, images, labels=None):
         features = self.backbone(images)
         features = self.head(features)
-#         features = F.normalize(features)
         if labels is not None:
-            return self.head_arc(features, labels), features
+            return self.head_arc(features, labels), features, self.binary_head(features)
         return features
     
     def create_timm_backbone(self,config):

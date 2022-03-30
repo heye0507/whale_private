@@ -21,6 +21,8 @@ class ArcfaceFocalOHEM(Callback):
     def after_pred(self):
         if not self.training:
             self.learn.pred = self.pred[0]
+        else:
+            self.learn.pred = (self.pred, self.epoch)
 
 # Metric
 def map5kfast(preds, targs, k=10):

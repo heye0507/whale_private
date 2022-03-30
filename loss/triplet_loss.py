@@ -4,7 +4,7 @@ class FocalOHNM(Module):
     y_int = True
     def __init__(self):
         store_attr()
-        self.hard_ratio = 6e-3
+        self.hard_ratio = 5e-3 #init should be (total bs) * 0.8 / num_cls (15587)
         self.ce_loss = CrossEntropyLossFlat()
         
     def focal_loss(self, preds, target, OHEM_percent=None):
@@ -34,8 +34,20 @@ class FocalOHNM(Module):
     def forward(self, output, target):
         if not isinstance(output, tuple):
             return self.ce_loss(output, target)
+        
+        assert len(output) == 2
+        ep = output[1]
+        output = output[0]
         target_onehot = torch.zeros([len(target), 15587]).to(output[1].device)
         target_onehot.scatter_(1, target.view(-1, 1).long(), 1)
+        
+        
+        if ep < 10:
+            self.hard_ratio = self.hard_ratio
+        elif ep < 20:
+            self.hard_ratio = 4e-3
+        else:
+            self.hard_ratio = 2e-3
         
         # binary ce loss
         loss_0 = self.bce_loss(output[2], target_onehot, self.hard_ratio)

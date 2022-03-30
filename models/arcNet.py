@@ -88,7 +88,8 @@ class Eff_Arc_Net(nn.Module):
                                          easy_margin = config['easy_margin'],
                                          ls_eps = config['ls_eps']
                                         )
-        self.binary_head = BinaryHead(num_outputs, channel_size)
+        if config['binary_head']:
+            self.binary_head = BinaryHead(num_outputs, channel_size)
 
     def forward(self, images, labels=None):
         features = self.backbone(images)

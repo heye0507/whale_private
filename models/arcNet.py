@@ -90,13 +90,23 @@ class Eff_Arc_Net(nn.Module):
                                         )
         if config['binary_head']:
             self.binary_head = BinaryHead(num_outputs, channel_size)
+            self.flag = True
+        else:
+            self.flag = False
 
     def forward(self, images, labels=None):
         features = self.backbone(images)
         features = self.head(features)
         if labels is not None:
-            return self.head_arc(features, labels), features, self.binary_head(features)
-        return features
+            if self.flag:
+                return self.head_arc(features, labels), features, self.binary_head(features)
+            else:
+                return self.head_arc(features, labels), features
+        else:
+            if self.flag:
+                return features, self.binary_head(features)
+            else:
+                return features, None
     
     def create_timm_backbone(self,config):
         model = timm.create_model(config['model_name'],pretrained=config['pretrained'],

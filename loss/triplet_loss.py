@@ -4,7 +4,7 @@ class FocalOHNM(Module):
     y_int = True
     def __init__(self):
         store_attr()
-        self.hard_ratio = 5e-3 #init should be (total bs) * 0.8 / num_cls (15587)
+        self.hard_ratio = 3e-3 #init should be (total bs) * 0.8 / num_cls (15587)
         self.ce_loss = CrossEntropyLossFlat()
         
     def focal_loss(self, preds, target, OHEM_percent=None):
@@ -45,9 +45,9 @@ class FocalOHNM(Module):
         if ep < 10:
             self.hard_ratio = self.hard_ratio
         elif ep < 20:
-            self.hard_ratio = 4e-3
+            self.hard_ratio = 2e-3#9e-4
         else:
-            self.hard_ratio = 2e-3
+            self.hard_ratio = 1e-3#6e-4
         
         # binary ce loss
         loss_0 = self.bce_loss(output[2], target_onehot, self.hard_ratio)

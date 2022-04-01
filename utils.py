@@ -103,7 +103,7 @@ def inference(m, dataloader, test=False, **kwargs):
 #             if not test:
 #                 id_list = xb['fn']
 #             else: id_list = yb
-            feats = m(images)
+            feats, _ = m(images)
             feats = torch.nn.functional.normalize(feats)
             ret_features.extend(feats.cpu().numpy())
             ret_labels.extend(id_list)
